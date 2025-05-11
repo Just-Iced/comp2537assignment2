@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You are Logged In</title>
+</head>
+
+<body>
+    <h1>Welcome!</h1>
+    <p>You are logged in.</p>
+    <button type="button" id="logoutBtn" onclick="fetch('/logout').then(() => {window.location.reload()});">Logout</button>
+    <button type="button" onclick="window.location.href='/members'">Go to the Members Area!</button>
+</body>
