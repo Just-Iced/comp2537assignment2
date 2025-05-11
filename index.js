@@ -34,6 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set("view engine", "ejs");
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -47,9 +48,9 @@ app.use(session({
 
 app.get("/", (req, res) => {
     if (req.session.user) {
-        return res.sendFile(__dirname + "/public/loggedIn.html");
+        return res.render("loggedIn", { name: req.session.user.name });
     } else {
-        return res.sendFile(__dirname + "/public/loggedOut.html");
+        return res.render("loggedOut");
     }
 });
 
@@ -59,13 +60,12 @@ app.get("/logout", (req, res) => {
         if (err) {
             return res.status(500).send("<h1>Error logging out</h1><br><a href='/'>Go back</a>");
         }
-        
         res.status(200).redirect("/");
     });
 });
 
 app.get("/login", (req, res) => {
-    res.sendFile(__dirname + "/public/login.html");
+    return res.render("login");
 });
 
 app.post("/loginUser", (req, res) => {
@@ -104,7 +104,7 @@ app.post("/loginUser", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-    res.sendFile(__dirname + "/public/signup.html");
+    res.render("register");
 });
 
 app.post("/registerUser", (req, res) => {
@@ -133,7 +133,7 @@ app.post("/registerUser", (req, res) => {
 
 app.get("/members", (req, res) => {
     if (req.session.user) {
-        res.sendFile(__dirname + "/public/members.html");
+        res.render("members", { name: req.session.user.name });
     } else {
         res.status(401).redirect("/");
     }
@@ -149,7 +149,7 @@ app.post("/getUserName", (req, res) => {
 });
 
 app.use((req, res, next) => {
-    res.status(404).send("Page not found. <br><a href='/'>Go back</a>");
+    res.status(404).render("404");
 });
 
 app.listen(PORT, () => {

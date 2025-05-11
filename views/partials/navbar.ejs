@@ -1,0 +1,8 @@
+<nav id="navbar-example2" class="navbar bg-body-tertiary px-3 mb-3">
+  <a class="navbar-brand" href="/">Justice</a>
+  <ul class="nav nav-pills">
+    <% for(let i=0; i < navItems.length; i++) { %>
+    <%- include('../templates/navbarItem', navItems[i]) %>
+    <% } %>
+  </ul>
+</nav>
