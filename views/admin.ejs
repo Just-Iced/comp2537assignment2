@@ -1,0 +1,14 @@
+<%- include("./partials/header", {pageTitle: "Admin Page"}) %>
+<%- include("./templates/loggedInNavbar") %>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Welcome to the Admin Page, <%=name%></h1><br><br>
+      <% for(let i=0; i < users.length; i++) { %>
+    <%- include('./templates/user', {user: users[i]}) %>
+    <% } %>
+    </div>
+  </div>
+
+  <%- include("./partials/footer") %>

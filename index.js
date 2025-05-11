@@ -122,7 +122,8 @@ app.post("/registerUser", (req, res) => {
     const newUser = {
         email,
         name,
-        password: bcrypt.hashSync(password, saltRounds)
+        password: bcrypt.hashSync(password, saltRounds),
+        userType: "user",
     };
     users.insertOne(newUser).then(() => {
         req.session.user = newUser;
@@ -143,6 +144,54 @@ app.post("/getUserName", (req, res) => {
     if (req.session.user) {
         console.log(req.session.user);
         res.status(200).send({name: req.session.user.name});
+    } else {
+        res.status(401).send("Unauthorized");
+    }
+});
+
+app.get("/admin", (req, res) => {
+    users.findOne({ email: req.session.user.email })
+        .then(async user => {
+            if (!user) {
+                return res.status(401).redirect("/");
+            }
+            if (user.userType === "admin") {
+                return res.render("admin", { name: req.session.user.name, users: await users.find().toArray() });
+            } else {
+                return res.status(401).redirect("/");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send("Internal server error");
+        });
+});
+app.post("/setAdmin", (req, res) => {
+    if (req.session.user && req.session.user.userType === "admin") {
+        const { email } = req.body;
+        users.updateOne({ email }, { $set: { userType: "admin" } })
+            .then(() => {
+                res.status(200).send("User set as admin");
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).send("Internal server error");
+            });
+    } else {
+        res.status(401).send("Unauthorized");
+    }
+});
+app.post("/deleteUser", (req, res) => {
+    if (req.session.user && req.session.user.userType === "admin") {
+        const { email } = req.body;
+        users.deleteOne({ email })
+            .then(() => {
+                res.status(200).send("User deleted");
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).send("Internal server error");
+            });
     } else {
         res.status(401).send("Unauthorized");
     }
