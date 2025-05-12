@@ -1,10 +1,9 @@
-<%- include("./partials/header", {pageTitle: "Logged In"}) %>
-<%- include("./templates/loggedInNavbar")%>
+<%- include("./templates/loggedInNavbar", {pageTitle: "Members Only Page"})%>
 <div class="container">
   <div class="row">
     <div class="col-md-12">
       <h1>Hello, <%= name %>!</h1>
-      <img src=<%=`/images/${Math.floor(Math.random() * 3)}.jpg`;%> alt="Members Image" class="img-fluid">
+      <img src=<%=`/images/${Math.floor(Math.random() * 3)}.jpg`;%> alt="Members Image" class="img-fluid img-thumbnail">
       <p>Welcome to the members area.</p>
       <a href="/" class="btn btn-primary">Home</a>
     </div>

@@ -1,11 +1,13 @@
-<%- include("./partials/header", {pageTitle: "Logged In"}) %>
-<%- include("./templates/loggedInNavbar")%>
+<%- include("./templates/loggedInNavbar", {pageTitle: "Logged In"})%>
 <div class="container">
     <div class="row">
         <div class="col-md-12">
             <h1>Welcome, <%= name %>!</h1>
             <p>You are logged in.</p>
             <a href="/members" class="btn btn-primary">Members</a>
+            <% if (userType === "admin") { %>
+                <a href="/admin" class="btn btn-success">Admin</a>
+            <% } %>
             <a href="/logout" class="btn btn-danger">Logout</a>
         </div>
     </div>

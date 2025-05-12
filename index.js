@@ -34,7 +34,6 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(require("body-parser").urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 app.use(session({
@@ -49,7 +48,7 @@ app.use(session({
 
 app.get("/", (req, res) => {
     if (req.session.user) {
-        return res.render("loggedIn", { name: req.session.user.name });
+        return res.render("loggedIn", { name: req.session.user.name, userType: req.session.user.userType });
     } else {
         return res.render("loggedOut");
     }
