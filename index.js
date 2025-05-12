@@ -36,6 +36,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
+const loggedInMiddleware = (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect("/");
+    }
+    app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Members", pageLink: "/members" }, { pageTitle: "Logout", pageLink: "/logout" }];
+    if (req.session.user.userType === "admin") {
+        app.locals.pages.push({ pageTitle: "Admin", pageLink: "/admin" });
+    }
+    app.locals.userType = req.session.user ? req.session.user.userType : null;
+    next();
+};
+
+const logInMiddleware = (req, res, next) => {
+    if (req.session.user) {
+        return res.redirect("/");
+    }
+    app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Login", pageLink: "/login" }, { pageTitle: "Sign Up", pageLink: "/register" }];
+    app.locals.userType = req.session.user ? req.session.user.userType : null;
+    next();
+};
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: true,
@@ -48,8 +69,13 @@ app.use(session({
 
 app.get("/", (req, res) => {
     if (req.session.user) {
+        app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Members", pageLink: "/members" }, { pageTitle: "Logout", pageLink: "/logout" }];
+        if (req.session.user.userType === "admin") {
+            app.locals.pages.push({ pageTitle: "Admin", pageLink: "/admin" });
+        }
         return res.render("loggedIn", { name: req.session.user.name, userType: req.session.user.userType });
     } else {
+        app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Login", pageLink: "/login" }, { pageTitle: "Sign Up", pageLink: "/register" }];
         return res.render("loggedOut");
     }
 });
@@ -58,13 +84,13 @@ app.get("/logout", (req, res) => {
     req.session.cookie.expires = new Date(Date.now() - 1);
     req.session.destroy((err) => {
         if (err) {
-            return res.status(500).send("<h1>Error logging out</h1><br><a href='/'>Go back</a>");
+            return res.status(500).redirect("/logoutFailed");
         }
         res.status(200).redirect("/");
     });
 });
 
-app.get("/login", (req, res) => {
+app.get("/login", logInMiddleware, (req, res) => {
     return res.render("login");
 });
 
@@ -103,12 +129,12 @@ app.post("/loginUser", (req, res) => {
         });
 });
 
-app.get("/register", (req, res) => {
+app.get("/register", logInMiddleware, (req, res) => {
     res.render("register");
 });
 
 app.post("/registerUser", (req, res) => {
-    const {email, name, password, password2} = req.body;
+    const { email, name, password, password2 } = req.body;
     const schema = Joi.object({
         email: Joi.string().email().max(40).required(),
         name: Joi.string().min(3).max(20).required(),
@@ -129,18 +155,14 @@ app.post("/registerUser", (req, res) => {
         req.session.user = newUser;
         res.status(200).redirect("/members");
     });
-    
+
 });
 
-app.get("/members", (req, res) => {
-    if (req.session.user) {
-        res.render("members", { name: req.session.user.name });
-    } else {
-        res.status(401).redirect("/");
-    }
+app.get("/members", loggedInMiddleware, (req, res) => {
+    res.render("members", { name: req.session.user.name });
 });
 
-app.get("/admin", (req, res) => {
+app.get("/admin", loggedInMiddleware, (req, res) => {
     users.findOne({ email: req.session.user.email })
         .then(async user => {
             if (!user) {
@@ -165,7 +187,7 @@ app.post("/changeUserType", (req, res) => {
             email: Joi.string().email().max(40).required(),
             userType: Joi.string().valid("user", "admin").required()
         });
-        const err = schema.validate({email, userType});
+        const err = schema.validate({ email, userType });
         if (err.error) {
             console.log(err.error.details[0].message);
             return res.status(400).send(err.error.details[0].message);
