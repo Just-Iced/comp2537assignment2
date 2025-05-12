@@ -3,7 +3,11 @@
   <div class="row">
     <div class="col-md-12">
       <h1>Hello, <%= name %>!</h1>
-      <img src=<%=`/images/${Math.floor(Math.random() * 3)}.jpg`;%> alt="Members Image" class="img-fluid img-thumbnail">
+      <div class="container">
+        <% for (let i = 0; i < 3; i++) { %>
+        <img src=<%=`/images/${i}.jpg`;%> alt="Members Image" class="img-fluid img-thumbnail">
+        <% } %>
+      </div>
       <p>Welcome to the members area.</p>
       <a href="/" class="btn btn-primary">Home</a>
     </div>
