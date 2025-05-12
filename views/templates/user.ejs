@@ -1,5 +1,5 @@
 <ul class="list-group list-group-horizontal">
   <li class="list-group-item"><p><%=`${user.name} (${user.userType})`%></p></li>
-  <li class="list-group-item"><a class="btn btn-danger">Promote to Admin</a></li>
-  <li class="list-group-item"><a class="btn btn-success">Demote to User</a></li>
+  <li class="list-group-item"><button class="btn btn-danger promote" name=<%=`${user.email}`%>>Promote to Admin</button></li>
+  <li class="list-group-item"><button class="btn btn-success demote" name=<%=`${user.email}`%>>Demote to User</button></li>
 </ul>

@@ -34,6 +34,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(require("body-parser").urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 
 app.use(session({
@@ -140,15 +141,6 @@ app.get("/members", (req, res) => {
     }
 });
 
-app.post("/getUserName", (req, res) => {
-    if (req.session.user) {
-        console.log(req.session.user);
-        res.status(200).send({name: req.session.user.name});
-    } else {
-        res.status(401).send("Unauthorized");
-    }
-});
-
 app.get("/admin", (req, res) => {
     users.findOne({ email: req.session.user.email })
         .then(async user => {
@@ -166,19 +158,30 @@ app.get("/admin", (req, res) => {
             res.status(500).send("Internal server error");
         });
 });
-app.post("/setAdmin", (req, res) => {
+app.post("/changeUserType", (req, res) => {
     if (req.session.user && req.session.user.userType === "admin") {
-        const { email } = req.body;
-        users.updateOne({ email }, { $set: { userType: "admin" } })
+        console.log(req.body);
+        const { email, userType } = req.body;
+        const schema = Joi.object({
+            email: Joi.string().email().max(40).required(),
+            userType: Joi.string().valid("user", "admin").required()
+        });
+        const err = schema.validate({email, userType});
+        if (err.error) {
+            console.log(err.error.details[0].message);
+            return res.status(400).send(err.error.details[0].message);
+        }
+        users.updateOne({ email }, { $set: { userType } })
             .then(() => {
-                res.status(200).send("User set as admin");
+                console.log("User type updated");
+                return res.status(200).send("User set as " + userType);
             })
             .catch(err => {
                 console.error(err);
-                res.status(500).send("Internal server error");
+                return res.status(500).send("Internal server error");
             });
     } else {
-        res.status(401).send("Unauthorized");
+        return res.status(401).send("Unauthorized");
     }
 });
 app.post("/deleteUser", (req, res) => {
