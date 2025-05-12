@@ -5,15 +5,14 @@ h1, h2, h3, h4, h5, h6, p, .navbar-brand, .nav-link, .btn, .card-title, .card-te
     color: #FFFFFF !important;
 }
 .nav, .navbar {
-    background-color: #282C34 !important;
+    background-color: #1f2926 !important;
 }
 .list-group-item {
     background-color: #181A1B !important;
     color: #FFFFFF !important;
 }
-.img-thumbnail {
-    max-width: 70%;
-    max-height: 60%;
+img {
+    min-width: 290px !important;
 }
 .form-control {
     background-color: #282C34 !important;
