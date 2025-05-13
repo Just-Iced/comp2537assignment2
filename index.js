@@ -38,7 +38,7 @@ app.set("view engine", "ejs");
 
 const loggedInMiddleware = (req, res, next) => {
     if (!req.session.user) {
-        return res.redirect("/");
+        return res.redirect("/login");
     }
     app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Members", pageLink: "/members" }, { pageTitle: "Logout", pageLink: "/logout" }];
     if (req.session.user.userType === "admin") {
@@ -72,16 +72,20 @@ app.get("/", (req, res) => {
         app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Members", pageLink: "/members" }, { pageTitle: "Logout", pageLink: "/logout" }];
         if (req.session.user.userType === "admin") {
             app.locals.pages.push({ pageTitle: "Admin", pageLink: "/admin" });
+            app.locals.userType = req.session.user.userType;
         }
-        return res.render("loggedIn", { name: req.session.user.name, userType: req.session.user.userType });
+        return res.render("index", { name: req.session.user.name });
     } else {
         app.locals.pages = [{ pageTitle: "Home", pageLink: "/" }, { pageTitle: "Login", pageLink: "/login" }, { pageTitle: "Sign Up", pageLink: "/register" }];
-        return res.render("loggedOut");
+        return res.render("index", { name: null });
     }
+    
 });
 
 app.get("/logout", (req, res) => {
     req.session.cookie.expires = new Date(Date.now() - 1);
+    req.session.user = null;
+    app.locals.userType = null;
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).redirect("/logoutFailed");
