@@ -175,7 +175,7 @@ app.get("/admin", loggedInMiddleware, (req, res) => {
             if (user.userType === "admin") {
                 return res.render("admin", { name: req.session.user.name, users: await users.find().toArray() });
             } else {
-                return res.status(401).redirect("/");
+                return res.status(401).redirect("/notAdmin");
             }
         })
         .catch(err => {
@@ -223,6 +223,10 @@ app.post("/deleteUser", (req, res) => {
     } else {
         res.status(401).send("Unauthorized");
     }
+});
+
+app.get("/notAdmin", (req, res) => {
+    res.status(401).render("notAdmin");
 });
 
 app.use((req, res, next) => {
